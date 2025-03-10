@@ -12,6 +12,7 @@
 #include "common.h"
 #include "usbrelay.h"
 #include "clone_gui_common.h"
+#include "util.h"
 
 
 unsigned long long primary_relay_delay_time_ccc;

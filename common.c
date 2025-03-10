@@ -7,6 +7,7 @@
 #include "common.h"
 #include "clone_gui_language.h"
 #include "io.h"
+#include "util.h"
 
 time_t start_time_ccc, end_time_ccc;
 struct timeval tvBegin_ccc, tvEnd_ccc, tvDiff_ccc, tvCurrent_ccc;

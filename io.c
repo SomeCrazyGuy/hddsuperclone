@@ -12,6 +12,7 @@
 #include "common.h"
 #include "io.h"
 #include "clone_gui_common.h"
+#include "util.h"
 
 unsigned char io_byte_ccc[16];
 uint8_t io_singlebyte_ccc;

@@ -12,6 +12,7 @@
 #include <unistd.h>
 #include <dirent.h>
 
+#include "util.h"
 
 char name[256][256];
 

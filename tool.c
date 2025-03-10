@@ -10,6 +10,7 @@
 
 #include "common.h"
 #include "tool.h"
+#include "util.h"
 
 unsigned int script_rows_ccc = 1000;
 unsigned int number_variable_rows_ccc = 100;

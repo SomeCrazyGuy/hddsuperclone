@@ -11,7 +11,7 @@
 #include "common.h"
 #include "hddsupertool.h"
 #include "hddsupertool_help.h"
-
+#include "util.h"
 
 
 char *title = "hddsupertool";

@@ -11,7 +11,7 @@
 #include "hddscviewer3.h"
 #include "hddscviewer3_glade.h"
 
-
+#include "util.h"
 
 char *title = "HDDSCViewer";
 char *version_number = "0.8.beta_20190901";
