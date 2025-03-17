@@ -111,3 +111,54 @@ static void util_write_message(int log_level, const char* message) {
     fflush(stderr);
     //TODO: could log to a file too
 }
+
+
+extern void util_hexdump_to_buffer(char* out_buffer, unsigned out_size, const void* in_data, unsigned in_size) {
+    char hex_buff[49];
+    char ascii_buff[17];
+    static const char hex[] = "0123456789ABCDEF";
+    const unsigned char* data = (const unsigned char*)in_data;
+
+    //position in hex buff, ascii buff, output buff
+    unsigned hp = 0, ap = 0, op = 0;
+
+    for (unsigned i = 0; i < in_size; ++i) {
+        if (i && !(i & 15)) {
+            int bytes = snprintf(&out_buffer[op], out_size - op, "%s|%s\n", hex_buff, ascii_buff);
+            hp = 0;
+            ap = 0;
+            if(bytes >= 0) {
+                op += bytes;
+                if (op == out_size) return;
+            }
+        }
+
+        unsigned char d = data[i];
+
+        hex_buff[hp++] = hex[d >> 4];
+        hex_buff[hp++] = hex[d & 15];
+        hex_buff[hp++] = ' ';
+        hex_buff[hp] = '\0';
+
+        ascii_buff[ap++] = ((d < 0x7F) && (d > 0x1F))? (char)d : '.';
+        ascii_buff[ap] = '\0';
+    }
+
+    //print remaining buffer if unaligned
+    if (hp) {
+        snprintf(&out_buffer[op], out_size - op, "%s|%s\n", hex_buff, ascii_buff);
+    }
+}
+
+
+extern void util_hexdump_to_file(FILE* output_file, const void* in_data, unsigned in_size) {
+    const unsigned char *in_ptr = (const unsigned char*)in_data;
+
+    for(unsigned offset = 0; offset < in_size; offset += 16) {
+        char line_buffer[128];
+        unsigned len = in_size - offset;
+        if (len > 16) len = 16;
+        util_hexdump_to_buffer(line_buffer, sizeof(line_buffer), in_ptr, len);
+        fputs(line_buffer, output_file);
+    }
+}

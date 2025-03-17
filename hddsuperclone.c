@@ -5595,27 +5595,7 @@ int update_display_ccc(int time_ms)
     int size = BUFFER_DISPLAY_COUNT * 16;
     for (i = 0; i < size ; i+=16)
     {
-      //snprintf(tempmessage_ccc, sizeof(tempmessage_ccc), "#");
-      //message_display_ccc(tempmessage_ccc);
-      unsigned char *c;
-      int n;
-      for (n=0; n < 16 && i+n < size; n++)
-      {
-        c = (unsigned char *)display_buffer_ccc+i+n+offset;
-        snprintf(tempmessage_ccc, sizeof(tempmessage_ccc), "%02x ", *c);
-        message_display_ccc(tempmessage_ccc);
-        strcat(data_preview, tempmessage_ccc);
-      }
-      snprintf(tempmessage_ccc, sizeof(tempmessage_ccc), "   ");
-      message_display_ccc(tempmessage_ccc);
-      for (n=0; n < 16 && i+n < size; n++)
-      {
-        c = (unsigned char *)display_buffer_ccc+i+n+offset;
-        snprintf(tempmessage_ccc, sizeof(tempmessage_ccc), "%c", isprint(*c) ? *c : '.');
-        message_display_ccc(tempmessage_ccc);
-        strcat(data_preview, tempmessage_ccc);
-      }
-      snprintf(tempmessage_ccc, sizeof(tempmessage_ccc), "\n");
+      util_hexdump_to_buffer(tempmessage_ccc, sizeof(tempmessage_ccc), display_buffer_ccc+offset, size);
       message_display_ccc(tempmessage_ccc);
       strcat(data_preview, tempmessage_ccc);
     }
@@ -14204,55 +14184,13 @@ int process_source_ccc(void)
       memcpy (idbuffer, identify_buffer_ccc, IDENTIFY_BUFFER_SIZE);
     }
     char tempstring[256];
-    int i;
-    for (i = 0; i < size; i+=16)
-    {
-      snprintf(tempstring, sizeof(tempstring), "# %x: ", i);
-      strcat (identify_device_raw_text_ccc, tempstring);
-      unsigned char *c;
-      int n;
-      for (n=0; n < 16 && i+n < size; n++)
-      {
-        c = (unsigned char *)idbuffer+i+n;
-        snprintf(tempstring, sizeof(tempstring), "%02x ", *c);
-        strcat (identify_device_raw_text_ccc, tempstring);
-      }
-      snprintf(tempstring, sizeof(tempstring), "   ");
-      for (n=0; n < 16 && i+n < size; n++)
-      {
-        c = (unsigned char *)idbuffer+i+n;
-        snprintf(tempstring, sizeof(tempstring), "%c", isprint(*c) ? *c : '.');
-        strcat (identify_device_raw_text_ccc, tempstring);
-      }
-      strcat (identify_device_raw_text_ccc, "\n");
-    }
+    util_hexdump_to_buffer(identify_device_raw_text_ccc, sizeof(identify_device_raw_text_ccc), idbuffer, sizeof(idbuffer));
     if ( (scsi_passthrough_ccc || usb_mode_ccc) && !ata_identify_success_ccc)
     {
       strcat (identify_device_raw_text_ccc, "# scsi read capacity\n");
       size = 32;
       memcpy (&idbuffer, &read_capacity_buffer_ccc, size);
-      int i;
-      for (i = 0; i < size; i+=16)
-      {
-        snprintf(tempstring, sizeof(tempstring), "# %x: ", i);
-        strcat (identify_device_raw_text_ccc, tempstring);
-        unsigned char *c;
-        int n;
-        for (n=0; n < 16 && i+n < size; n++)
-        {
-          c = (unsigned char *)idbuffer+i+n;
-          snprintf(tempstring, sizeof(tempstring), "%02x ", *c);
-          strcat (identify_device_raw_text_ccc, tempstring);
-        }
-        snprintf(tempstring, sizeof(tempstring), "   ");
-        for (n=0; n < 16 && i+n < size; n++)
-        {
-          c = (unsigned char *)idbuffer+i+n;
-          snprintf(tempstring, sizeof(tempstring), "%c", isprint(*c) ? *c : '.');
-          strcat (identify_device_raw_text_ccc, tempstring);
-        }
-        strcat (identify_device_raw_text_ccc, "\n");
-      }
+      util_hexdump_to_buffer(identify_device_raw_text_ccc, sizeof(identify_device_raw_text_ccc), idbuffer, size);
     }
     else
     {

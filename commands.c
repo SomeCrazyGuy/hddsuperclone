@@ -1535,25 +1535,7 @@ int printbuffer_ccc(bool perform_check, unsigned int line_number, char *rest_of_
 
   if (!perform_check)
   {
-    unsigned int i;
-    for (i = 0; i < size; i+=16)
-    {
-      fprintf (stdout, "%x: ", i + offset);
-      unsigned char *c;
-      int n;
-      for (n=0; n < 16 && i+n < size; n++)
-      {
-        c = (unsigned char *)ccc_buffer_ccc+i+n+offset;
-        fprintf (stdout, "%02x ", *c);
-      }
-      fprintf (stdout, "   ");
-      for (n=0; n < 16 && i+n < size; n++)
-      {
-        c = (unsigned char *)ccc_buffer_ccc+i+n+offset;
-        fprintf (stdout, "%c", isprint(*c) ? *c : '.');
-      }
-      fprintf (stdout, "\n");
-    }
+    util_hexdump_to_file(stdout, ccc_buffer_ccc+offset, 256);
   }
 
   return (0);
@@ -1893,19 +1875,7 @@ int print_sense_buffer_ccc(bool perform_check, unsigned int line_number, char *r
 
   if (!perform_check)
   {
-    unsigned int i;
-    for (i = 0; i < size; i+=16)
-    {
-      fprintf (stdout, "%x: ", i + offset);
-      unsigned char *c;
-      int n;
-      for (n=0; n < 16 && i+n < size; n++)
-      {
-        c = (unsigned char *)sensebuffer_ccc+i+n+offset;
-        fprintf (stdout, "%02x ", *c);
-      }
-      fprintf (stdout, "\n");
-    }
+    util_hexdump_to_file(stdout, sensebuffer_ccc+offset, 256);
   }
 
   return (0);
@@ -5568,24 +5538,7 @@ int printscratchpad_ccc(bool perform_check, unsigned int line_number, char *rest
 
   if (!perform_check)
   {
-    unsigned int i;
-    for (i = 0; i < size; i+=16)
-    {
-      fprintf (stdout, "%x: ", i + offset);
-      unsigned char *c;
-      int n;
-      for (n=0; n < 16 && i+n < size; n++)
-      {
-        c = (unsigned char *)ccc_scratchpad_ccc+i+n+offset;
-        fprintf (stdout, "%02x ", *c);
-      }
-      for (n=0; n < 16 && i+n < size; n++)
-      {
-        c = (unsigned char *)ccc_scratchpad_ccc+i+n+offset;
-        fprintf (stdout, "%c", isprint(*c) ? *c : '.');
-      }
-      fprintf (stdout, "\n");
-    }
+    util_hexdump_to_file(stdout, ccc_scratchpad_ccc+offset, 256);
   }
 
   return (0);
@@ -6953,24 +6906,7 @@ int print_usbbuffer_ccc(bool perform_check, unsigned int line_number, char *rest
 
   if (!perform_check)
   {
-    unsigned int i;
-    for (i = 0; i < size; i+=16)
-    {
-      fprintf (stdout, "%x: ", i + offset);
-      unsigned char *c;
-      int n;
-      for (n=0; n < 16 && i+n < size; n++)
-      {
-        c = (unsigned char *)ccc_usbbuffer_ccc+i+n+offset;
-        fprintf (stdout, "%02x ", *c);
-      }
-      for (n=0; n < 16 && i+n < size; n++)
-      {
-        c = (unsigned char *)ccc_usbbuffer_ccc+i+n+offset;
-        fprintf (stdout, "%c", isprint(*c) ? *c : '.');
-      }
-      fprintf (stdout, "\n");
-    }
+    util_hexdump_to_file(stdout, ccc_usbbuffer_ccc+offset, 256);
   }
   return 0;
 }

@@ -524,14 +524,7 @@ int create_dma_table_ccc(void)
       #ifdef DEBUG //TODO: DEBUG macro can be removed
       if (debug_ccc & DEBUG33) //TODO: debug_ccc can be removed not that logging is controllable
       {
-        int i; //TODO: add hexdump() utility function
-        for (i = 0; i < 16; i++)
-        {
-          unsigned char *c;
-          c = (unsigned char *)table_buffer_ccc+i+n;
-          fprintf (stdout, "tb%02x ", *c);
-        }
-        fprintf (stdout, "\n");
+        util_hexdump_to_file(stdout, table_buffer_ccc+n, 16);
       }
       #endif
     }
@@ -604,14 +597,7 @@ int create_dma_table_ccc(void)
       #ifdef DEBUG
       if (debug_ccc & DEBUG33)
       {
-        int i;
-        for (i = 0; i < 8; i++)
-        { //TODO: add hexdump() utility function
-          unsigned char *c;
-          c = (unsigned char *)table_buffer_ccc+i;
-          fprintf (stdout, "tb%02x ", *c);
-        }
-        fprintf (stdout, "\n");
+        util_hexdump_to_file(stdout, table_buffer_ccc, 8);
       }
       #endif
     }
@@ -1226,25 +1212,7 @@ void dump_data_to_filename_ccc(char *filename, void* buffer, int size, char *des
   {
     fprintf (file, "warning, size of data not evenly dividable by 16\n");
   }
-  int i;
-  for (i = 0; i < size; i+=16)
-  { //TODO: add hexdump() utility function
-    fprintf (file, "%x: ", i);
-    unsigned char *c;
-    int n;
-    for (n=0; n < 16 && i+n < size; n++)
-    {
-      c = (unsigned char *)data+i+n;
-      fprintf (file, "%02x ", *c);
-    }
-    fprintf (file, "   ");
-    for (n=0; n < 16 && i+n < size; n++)
-    {
-      c = (unsigned char *)data+i+n;
-      fprintf (file, "%c", isprint(*c) ? *c : '.');
-    }
-    fprintf (file, "\n");
-  }
+  util_hexdump_to_file(file, data, size);
   if(file!=NULL)
   {
     int fp = fileno(file);
@@ -1394,20 +1362,12 @@ int set_rebuild_assist_enabled_ccc (void)
   }
 
   read_rebuild_assist_log_ccc();
-  int i;
 
   //TODO: refactor for INFO() macro
   fprintf (stdout, "flags=%02x length=%02x mask=", rebuild_assist_log_data_ccc.flags, rebuild_assist_log_data_ccc.length);
-  for (i = 0; i < rebuild_assist_log_data_ccc.length; i++) //TODO: add hexdump() utility function
-  {
-    fprintf (stdout, "%02x", rebuild_assist_log_data_ccc.mask[i]);
-  }
+  util_hexdump_to_file(stdout, rebuild_assist_log_data_ccc.mask, rebuild_assist_log_data_ccc.length);
   fprintf (stdout, " disabled=");
-  for (i = 0; i < rebuild_assist_log_data_ccc.length; i++)
-  {
-    fprintf (stdout, "%02x", rebuild_assist_log_data_ccc.disabled[i]);
-  }
-  fprintf (stdout, "\n");
+  util_hexdump_to_file(stdout, rebuild_assist_log_data_ccc.disabled, rebuild_assist_log_data_ccc.length);
   int head = 0;
   while ((head / 8) < rebuild_assist_element_length_ccc)
   {
@@ -1524,25 +1484,8 @@ int rebuild_assist_disable_head_ccc (int head)
     return -1;
   }
 
-  //TODO: add hexdump() utility function
-  fprintf (stdout, "rebuild assist write log data\n");
-  int i;
-  for (i = 0; i < 32; i+=16)
-  {
-    fprintf (stdout, "%x: ", i);
-    int n;
-    for (n=0; n < 16 && i+n < 32; n++)
-    {
-      fprintf (stdout, "%02x ", data[i+n]);
-    }
-    fprintf (stdout, "   ");
-    for (n=0; n < 16 && i+n < 32; n++)
-    {
-      fprintf (stdout, "%c", isprint(data[i+n]) ? data[i+n] : '.');
-    }
-    fprintf (stdout, "\n");
-  }
-
+  INFO("rebuild assist write log data");
+  util_hexdump_to_file(stdout, data, sizeof(data));
   return 0;
 }
 

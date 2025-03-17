@@ -742,26 +742,7 @@ int do_usb_read_sense_ccc(int timeout)
   if (debug_ccc & DEBUG19)
   {
     INFO("endpointin=%x size=%lld timeout=%d", usbd1_bulk_in_endpoint_ccc, sensebuffer_size_ccc, timeout);
-    int i;
-    int size = sensebuffer_size_ccc;
-    for (i = 0; i < size; i+=16) //TODO: add hexdump() function to util.c
-    {
-      fprintf (stdout, "%x: ", i);
-      unsigned char *c;
-      int n;
-      for (n=0; n < 16 && i+n < size; n++)
-      {
-        c = (unsigned char *)sensebuffer_ccc+i+n;
-        fprintf (stdout, "%02x ", *c);
-      }
-      fprintf (stdout, "   ");
-      for (n=0; n < 16 && i+n < size; n++)
-      {
-        c = (unsigned char *)sensebuffer_ccc+i+n;
-        fprintf (stdout, "%c", isprint(*c) ? *c : '.');
-      }
-      fprintf (stdout, "\n");
-    }
+    util_hexdump_to_file(stdout, sensebuffer_ccc, sensebuffer_size_ccc);
   }
 
   if (ret < 0)
@@ -793,26 +774,7 @@ int do_usb_raw_read_ccc(int timeout)
   if (debug_ccc & DEBUG19)
   {
     INFO("endpointin=%x size=%lld timeout=%d", usbd1_bulk_in_endpoint_ccc, ccc_main_usbbuffer_size_ccc, timeout);
-    int i;
-    int size = ccc_main_usbbuffer_size_ccc;
-    for (i = 0; i < size; i+=16) //TODO: add hexdump() function to util.c
-    {
-      fprintf (stdout, "%x: ", i);
-      unsigned char *c;
-      int n;
-      for (n=0; n < 16 && i+n < size; n++)
-      {
-        c = (unsigned char *)ccc_usbbuffer_ccc+i+n;
-        fprintf (stdout, "%02x ", *c);
-      }
-      fprintf (stdout, "   ");
-      for (n=0; n < 16 && i+n < size; n++)
-      {
-        c = (unsigned char *)ccc_usbbuffer_ccc+i+n;
-        fprintf (stdout, "%c", isprint(*c) ? *c : '.');
-      }
-      fprintf (stdout, "\n");
-    }
+    util_hexdump_to_file(stdout, sensebuffer_ccc, sensebuffer_size_ccc);
   }
 
   set_number_variable_value_ccc("$usb_return_status", ret);
@@ -844,26 +806,7 @@ int do_usb_raw_write_ccc(int timeout)
   if (debug_ccc & DEBUG19)
   {
     INFO("endpointout=%x size=%lld timeout=%d", usbd1_bulk_out_endpoint_ccc, ccc_main_usbbuffer_size_ccc, timeout);
-    int i;
-    int size = ccc_main_usbbuffer_size_ccc;
-    for (i = 0; i < size; i+=16) //TODO: add hexdump() function to util.c
-    {
-      fprintf (stdout, "%x: ", i);
-      unsigned char *c;
-      int n;
-      for (n=0; n < 16 && i+n < size; n++)
-      {
-        c = (unsigned char *)ccc_usbbuffer_ccc+i+n;
-        fprintf (stdout, "%02x ", *c);
-      }
-      fprintf (stdout, "   ");
-      for (n=0; n < 16 && i+n < size; n++)
-      {
-        c = (unsigned char *)ccc_usbbuffer_ccc+i+n;
-        fprintf (stdout, "%c", isprint(*c) ? *c : '.');
-      }
-      fprintf (stdout, "\n");
-    }
+    util_hexdump_to_file(stdout, sensebuffer_ccc, sensebuffer_size_ccc);
   }
 
   int ret = 0;
@@ -901,26 +844,7 @@ int usb_read_data_ccc(int timeout)
   if (debug_ccc & DEBUG19)
   {
     INFO("endpointin=%x size=%lld timeout=%d", usbd1_bulk_in_endpoint_ccc, ccc_main_buffer_size_ccc, timeout);
-    int i;
-    int size = ccc_main_buffer_size_ccc;
-    for (i = 0; i < size; i+=16) //TODO: add hexdump() function to util.c
-    {
-      fprintf (stdout, "%x: ", i);
-      unsigned char *c;
-      int n;
-      for (n=0; n < 16 && i+n < size; n++)
-      {
-        c = (unsigned char *)ccc_buffer_ccc+i+n;
-        fprintf (stdout, "%02x ", *c);
-      }
-      fprintf (stdout, "   ");
-      for (n=0; n < 16 && i+n < size; n++)
-      {
-        c = (unsigned char *)ccc_buffer_ccc+i+n;
-        fprintf (stdout, "%c", isprint(*c) ? *c : '.');
-      }
-      fprintf (stdout, "\n");
-    }
+    util_hexdump_to_file(stdout, sensebuffer_ccc, sensebuffer_size_ccc);
   }
 
   if (ret < 0)
@@ -945,26 +869,7 @@ int usb_write_data_ccc(int timeout)
   if (debug_ccc & DEBUG19)
   {
     INFO("endpointout=%x size=%lld timeout=%d", usbd1_bulk_out_endpoint_ccc, ccc_main_buffer_size_ccc, timeout);
-    int i;
-    int size = ccc_main_buffer_size_ccc;
-    for (i = 0; i < size; i+=16) //TODO: add hexdump() function to util.c
-    {
-      fprintf (stdout, "%x: ", i);
-      unsigned char *c;
-      int n;
-      for (n=0; n < 16 && i+n < size; n++)
-      {
-        c = (unsigned char *)ccc_buffer_ccc+i+n;
-        fprintf (stdout, "%02x ", *c);
-      }
-      fprintf (stdout, "   ");
-      for (n=0; n < 16 && i+n < size; n++)
-      {
-        c = (unsigned char *)ccc_buffer_ccc+i+n;
-        fprintf (stdout, "%c", isprint(*c) ? *c : '.');
-      }
-      fprintf (stdout, "\n");
-    }
+    util_hexdump_to_file(stdout, sensebuffer_ccc, sensebuffer_size_ccc);
   }
 
   int ret = 0;
@@ -996,26 +901,7 @@ int do_usb_send_cbw_ccc(int timeout)
   if (debug_ccc & DEBUG19)
   {
     INFO("endpointout=%x size=%lld timeout=%d", usbd1_bulk_out_endpoint_ccc, USBCBW_BUFFER_SIZE, timeout);
-    int i;
-    int size = USBCBW_BUFFER_SIZE;
-    for (i = 0; i < size; i+=16) //TODO: add hexdum() function to util.c
-    {
-      fprintf (stdout, "%x: ", i);
-      unsigned char *c;
-      int n;
-      for (n=0; n < 16 && i+n < size; n++)
-      {
-        c = (unsigned char *)usbcbwbuffer_ccc+i+n;
-        fprintf (stdout, "%02x ", *c);
-      }
-      fprintf (stdout, "   ");
-      for (n=0; n < 16 && i+n < size; n++)
-      {
-        c = (unsigned char *)usbcbwbuffer_ccc+i+n;
-        fprintf (stdout, "%c", isprint(*c) ? *c : '.');
-      }
-      fprintf (stdout, "\n");
-    }
+    util_hexdump_to_file(stdout, sensebuffer_ccc, sensebuffer_size_ccc);
   }
 
   int ret = 0;
@@ -1047,26 +933,7 @@ int do_usb_receive_csw_ccc(int timeout)
   if (debug_ccc & DEBUG19)
   {
     INFO("endpointin=%x size=%lld timeout=%d", usbd1_bulk_in_endpoint_ccc, USBCSW_BUFFER_SIZE, timeout);
-    int i;
-    int size = USBCSW_BUFFER_SIZE;
-    for (i = 0; i < size; i+=16) //TODO: add hexdump() function to util.c
-    {
-      fprintf (stdout, "%x: ", i);
-      unsigned char *c;
-      int n;
-      for (n=0; n < 16 && i+n < size; n++)
-      {
-        c = (unsigned char *)usbcswbuffer_ccc+i+n;
-        fprintf (stdout, "%02x ", *c);
-      }
-      fprintf (stdout, "   ");
-      for (n=0; n < 16 && i+n < size; n++)
-      {
-        c = (unsigned char *)usbcswbuffer_ccc+i+n;
-        fprintf (stdout, "%c", isprint(*c) ? *c : '.');
-      }
-      fprintf (stdout, "\n");
-    }
+    util_hexdump_to_file(stdout, sensebuffer_ccc, sensebuffer_size_ccc);
   }
 
   if (ret < 0)

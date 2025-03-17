@@ -78,22 +78,12 @@ int prepare_cdb_ccc(void)
   if (verbose_ccc & DEBUG7)
   {
     fprintf (stdout, "CDB: ");
-    int i;
-    for (i = 0; i < command_length_ccc; i++) //TODO: add hexdump() util.c function
-    {
-      fprintf (stdout, "%02x ", passthrough_ccc.scsi_cmd[i]);
-    }
-    fprintf (stdout, "\n");
+    util_hexdump_to_file(stdout, passthrough_ccc.scsi_cmd, command_length_ccc);
   }
   if (debug_ccc & DEBUG7)
   {
     fprintf (debug_file_ccc, "CDB: ");
-    int i;
-    for (i = 0; i < command_length_ccc; i++) //TODO: add hexdump() util.c function
-    {
-      fprintf (debug_file_ccc, "%02x ", passthrough_ccc.scsi_cmd[i]);
-    }
-    fprintf (debug_file_ccc, "\n");
+    util_hexdump_to_file(debug_file_ccc, passthrough_ccc.scsi_cmd, command_length_ccc);
   }
 
   return (0);
@@ -2839,26 +2829,7 @@ int set_table_address_ccc(void)
   if (debug_ccc & DEBUG34)
   {
     fprintf (stdout, "table_physical_address=0x%llx\n", table_physical_address_ccc);
-    int size = 512;
-    int i;
-    for (i = 0; i < size; i+=16)
-    {
-      fprintf (stdout, "%x: ", i);
-      unsigned char *c;
-      int n;
-      for (n=0; n < 16 && i+n < size; n++)
-      {
-        c = (unsigned char *)table_buffer_ccc+i+n;
-        fprintf (stdout, "%02x ", *c);
-      }
-      fprintf (stdout, "   ");
-      for (n=0; n < 16 && i+n < size; n++)
-      {
-        c = (unsigned char *)table_buffer_ccc+i+n;
-        fprintf (stdout, "%c", isprint(*c) ? *c : '.');
-      }
-      fprintf (stdout, "\n");
-    }
+    util_hexdump_to_file(stdout, table_buffer_ccc, 512);
   }
   #endif
 
@@ -4242,27 +4213,9 @@ void dump_data_to_file_ccc(FILE *file, void *buffer, int size)
   unsigned char* data = buffer;
   if (size % 16)
   {
-    fprintf (file, "warning, size of data not evenly dividable by 16\n");
+    WARN("size of data (%d) not evenly dividable by 16", size);
   }
-  int i;
-  for (i = 0; i < size; i+=16)
-  {
-    fprintf (file, "%x: ", i);
-    unsigned char *c;
-    int n;
-    for (n=0; n < 16 && i+n < size; n++)
-    {
-      c = (unsigned char *)data+i+n;
-      fprintf (file, "%02x ", *c);
-    }
-    fprintf (file, "   ");
-    for (n=0; n < 16 && i+n < size; n++)
-    {
-      c = (unsigned char *)data+i+n;
-      fprintf (file, "%c", isprint(*c) ? *c : '.');
-    }
-    fprintf (file, "\n");
-  }
+  util_hexdump_to_file(file, buffer, size);
   fflush(file);
   int ptf = fileno(file);
   fsync(ptf);
@@ -6063,71 +6016,12 @@ int post_direct_ccc(int command_type)
       #ifdef DEBUG
       if (debug_ccc & DEBUG36)
       {
-        int i;
-        for (i = 0; i < 256; i+=16)
-        {
-          fprintf (stdout, "%x: ", i);
-          unsigned char *c;
-          int n;
-          for (n=0; n < 16 && i+n < 512; n++)
-          {
-            c = (unsigned char *)table_buffer_ccc+i+n;
-            fprintf (stdout, "%02x ", *c);
-          }
-          fprintf (stdout, "   ");
-          for (n=0; n < 16 && i+n < 512; n++)
-          {
-            c = (unsigned char *)table_buffer_ccc+i+n;
-            fprintf (stdout, "%c", isprint(*c) ? *c : '.');
-          }
-          fprintf (stdout, "\n");
-        }
-      }
-
-      if (debug_ccc & DEBUG36)
-      {
-        int i;
-        for (i = 0; i < 256; i+=16)
-        {
-          fprintf (stdout, "%x: ", i);
-          unsigned char *c;
-          int n;
-          for (n=0; n < 16 && i+n < 512; n++)
-          {
-            c = (unsigned char *)fis_buffer_ccc+i+n;
-            fprintf (stdout, "%02x ", *c);
-          }
-          fprintf (stdout, "   ");
-          for (n=0; n < 16 && i+n < 512; n++)
-          {
-            c = (unsigned char *)fis_buffer_ccc+i+n;
-            fprintf (stdout, "%c", isprint(*c) ? *c : '.');
-          }
-          fprintf (stdout, "\n");
-        }
-      }
-
-      if (debug_ccc & DEBUG36)
-      {
-        int i;
-        for (i = 0; i < 128; i+=16)
-        {
-          fprintf (stdout, "%x: ", i);
-          unsigned char *c;
-          int n;
-          for (n=0; n < 16 && i+n < 512; n++)
-          {
-            c = (unsigned char *)command_list_buffer_ccc+i+n;
-            fprintf (stdout, "%02x ", *c);
-          }
-          fprintf (stdout, "   ");
-          for (n=0; n < 16 && i+n < 512; n++)
-          {
-            c = (unsigned char *)command_list_buffer_ccc+i+n;
-            fprintf (stdout, "%c", isprint(*c) ? *c : '.');
-          }
-          fprintf (stdout, "\n");
-        }
+        INFO("Table Buffer:");
+        util_hexdump_to_file(stdout, table_buffer_ccc, 512);
+        INFO("FIS Buffer:");
+        util_hexdump_to_file(stdout, fis_buffer_ccc, 512);
+        INFO("Command List Buffer");
+        util_hexdump_to_file(stdout, command_list_buffer_ccc, 512);
       }
       #endif
     }
@@ -7416,24 +7310,7 @@ int identify_device_direct_ccc(unsigned long long address, int select, int count
 
   if (verbose_ccc & DEBUG9)
   {
-    for (i = 0; i < 512; i+=16)
-    {
-      fprintf (stdout, "%x: ", i);
-      unsigned char *c;
-      int n;
-      for (n=0; n < 16 && i+n < 512; n++)
-      {
-        c = (unsigned char *)ccc_buffer_ccc+i+n;
-        fprintf (stdout, "%02x ", *c);
-      }
-      fprintf (stdout, "   ");
-      for (n=0; n < 16 && i+n < 512; n++)
-      {
-        c = (unsigned char *)ccc_buffer_ccc+i+n;
-        fprintf (stdout, "%c", isprint(*c) ? *c : '.');
-      }
-      fprintf (stdout, "\n");
-    }
+    util_hexdump_to_file(stdout, ccc_buffer_ccc, 512);
   }
 
   char temp_model[41] = "";
@@ -7971,68 +7848,12 @@ int identify_device_ahci_ccc(int count)
     #ifdef DEBUG
     if (debug_ccc & DEBUG36)
     {
-      for (i = 0; i < 256; i+=16)
-      {
-        fprintf (stdout, "%x: ", i);
-        unsigned char *c;
-        int n;
-        for (n=0; n < 16 && i+n < 512; n++)
-        {
-          c = (unsigned char *)fis_buffer_ccc+i+n;
-          fprintf (stdout, "%02x ", *c);
-        }
-        fprintf (stdout, "   ");
-        for (n=0; n < 16 && i+n < 512; n++)
-        {
-          c = (unsigned char *)fis_buffer_ccc+i+n;
-          fprintf (stdout, "%c", isprint(*c) ? *c : '.');
-        }
-        fprintf (stdout, "\n");
-      }
-    }
-
-    if (debug_ccc & DEBUG36)
-    {
-      for (i = 0; i < 256; i+=16)
-      {
-        fprintf (stdout, "%x: ", i);
-        unsigned char *c;
-        int n;
-        for (n=0; n < 16 && i+n < 512; n++)
-        {
-          c = (unsigned char *)table_buffer_ccc+i+n;
-          fprintf (stdout, "%02x ", *c);
-        }
-        fprintf (stdout, "   ");
-        for (n=0; n < 16 && i+n < 512; n++)
-        {
-          c = (unsigned char *)table_buffer_ccc+i+n;
-          fprintf (stdout, "%c", isprint(*c) ? *c : '.');
-        }
-        fprintf (stdout, "\n");
-      }
-    }
-
-    if (debug_ccc & DEBUG36)
-    {
-      for (i = 0; i < 128; i+=16)
-      {
-        fprintf (stdout, "%x: ", i);
-        unsigned char *c;
-        int n;
-        for (n=0; n < 16 && i+n < 512; n++)
-        {
-          c = (unsigned char *)command_list_buffer_ccc+i+n;
-          fprintf (stdout, "%02x ", *c);
-        }
-        fprintf (stdout, "   ");
-        for (n=0; n < 16 && i+n < 512; n++)
-        {
-          c = (unsigned char *)command_list_buffer_ccc+i+n;
-          fprintf (stdout, "%c", isprint(*c) ? *c : '.');
-        }
-        fprintf (stdout, "\n");
-      }
+      INFO("Table Buffer:");
+      util_hexdump_to_file(stdout, table_buffer_ccc, 512);
+      INFO("FIS Buffer:");
+      util_hexdump_to_file(stdout, fis_buffer_ccc, 512);
+      INFO("Command List Buffer");
+      util_hexdump_to_file(stdout, command_list_buffer_ccc, 512);
     }
     #endif
 
@@ -8086,24 +7907,7 @@ int identify_device_ahci_ccc(int count)
   int i;
   if (verbose_ccc & DEBUG9)
   {
-    for (i = 0; i < 512; i+=16)
-    {
-      fprintf (stdout, "%x: ", i);
-      unsigned char *c;
-      int n;
-      for (n=0; n < 16 && i+n < 512; n++)
-      {
-        c = (unsigned char *)ccc_buffer_ccc+i+n;
-        fprintf (stdout, "%02x ", *c);
-      }
-      fprintf (stdout, "   ");
-      for (n=0; n < 16 && i+n < 512; n++)
-      {
-        c = (unsigned char *)ccc_buffer_ccc+i+n;
-        fprintf (stdout, "%c", isprint(*c) ? *c : '.');
-      }
-      fprintf (stdout, "\n");
-    }
+    util_hexdump_to_file(stdout, ccc_buffer_ccc, 512);
   }
 
   char temp_model[41] = "";
@@ -8297,24 +8101,7 @@ int identify_device_passthrough_ccc(char *name, int count)
   int i;
   if (verbose_ccc & DEBUG9)
   {
-    for (i = 0; i < 512; i+=16)
-    {
-      fprintf (stdout, "%x: ", i);
-      unsigned char *c;
-      int n;
-      for (n=0; n < 16 && i+n < 512; n++)
-      {
-        c = (unsigned char *)ccc_buffer_ccc+i+n;
-        fprintf (stdout, "%02x ", *c);
-      }
-      fprintf (stdout, "   ");
-      for (n=0; n < 16 && i+n < 512; n++)
-      {
-        c = (unsigned char *)ccc_buffer_ccc+i+n;
-        fprintf (stdout, "%c", isprint(*c) ? *c : '.');
-      }
-      fprintf (stdout, "\n");
-    }
+    util_hexdump_to_file(stdout, ccc_buffer_ccc, 512);
   }
 
   char temp_model[41] = "";
@@ -8491,24 +8278,7 @@ int identify_device_scsi_ccc(char *name, int count)
   int i;
   if (verbose_ccc & DEBUG9)
   {
-    for (i = 0; i < 44; i+=16)
-    {
-      fprintf (stdout, "%x: ", i);
-      unsigned char *c;
-      int n;
-      for (n=0; n < 16 && i+n < 512; n++)
-      {
-        c = (unsigned char *)ccc_buffer_ccc+i+n;
-        fprintf (stdout, "%02x ", *c);
-      }
-      fprintf (stdout, "   ");
-      for (n=0; n < 16 && i+n < 512; n++)
-      {
-        c = (unsigned char *)ccc_buffer_ccc+i+n;
-        fprintf (stdout, "%c", isprint(*c) ? *c : '.');
-      }
-      fprintf (stdout, "\n");
-    }
+    util_hexdump_to_file(stdout, ccc_buffer_ccc, 512);
   }
 
   char temp_model[41] = "";
@@ -10240,71 +10010,12 @@ int set_and_send_regs_ccc(int command_type)
       #ifdef DEBUG
       if (debug_ccc & DEBUG36)
       {
-        int i;
-        for (i = 0; i < 256; i+=16)
-        {
-          fprintf (stdout, "%x: ", i);
-          unsigned char *c;
-          int n;
-          for (n=0; n < 16 && i+n < 512; n++)
-          {
-            c = (unsigned char *)table_buffer_ccc+i+n;
-            fprintf (stdout, "%02x ", *c);
-          }
-          fprintf (stdout, "   ");
-          for (n=0; n < 16 && i+n < 512; n++)
-          {
-            c = (unsigned char *)table_buffer_ccc+i+n;
-            fprintf (stdout, "%c", isprint(*c) ? *c : '.');
-          }
-          fprintf (stdout, "\n");
-        }
-      }
-
-      if (debug_ccc & DEBUG36)
-      {
-        int i;
-        for (i = 0; i < 256; i+=16)
-        {
-          fprintf (stdout, "%x: ", i);
-          unsigned char *c;
-          int n;
-          for (n=0; n < 16 && i+n < 512; n++)
-          {
-            c = (unsigned char *)fis_buffer_ccc+i+n;
-            fprintf (stdout, "%02x ", *c);
-          }
-          fprintf (stdout, "   ");
-          for (n=0; n < 16 && i+n < 512; n++)
-          {
-            c = (unsigned char *)fis_buffer_ccc+i+n;
-            fprintf (stdout, "%c", isprint(*c) ? *c : '.');
-          }
-          fprintf (stdout, "\n");
-        }
-      }
-
-      if (debug_ccc & DEBUG36)
-      {
-        int i;
-        for (i = 0; i < 128; i+=16)
-        {
-          fprintf (stdout, "%x: ", i);
-          unsigned char *c;
-          int n;
-          for (n=0; n < 16 && i+n < 512; n++)
-          {
-            c = (unsigned char *)command_list_buffer_ccc+i+n;
-            fprintf (stdout, "%02x ", *c);
-          }
-          fprintf (stdout, "   ");
-          for (n=0; n < 16 && i+n < 512; n++)
-          {
-            c = (unsigned char *)command_list_buffer_ccc+i+n;
-            fprintf (stdout, "%c", isprint(*c) ? *c : '.');
-          }
-          fprintf (stdout, "\n");
-        }
+        INFO("Table Buffer:");
+        util_hexdump_to_file(stdout, table_buffer_ccc, 512);
+        INFO("FIS Buffer:");
+        util_hexdump_to_file(stdout, fis_buffer_ccc, 512);
+        INFO("Command List Buffer");
+        util_hexdump_to_file(stdout, command_list_buffer_ccc, 512);
       }
       #endif
     }
